@@ -8,45 +8,49 @@ import isLoggedIn from './middleware/isLoggedIn.js';
 import { MongoClient, ServerApiVersion } from 'mongodb';
 import { fileURLToPath } from 'node:url';
 import session from 'express-session';
-import cookieParser from 'cookie-parser';
+import * as items from './controllers/items.js';
 
 
 
 // get the directory name
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+export const loginPagePath = path.join(__dirname, 'static/auth', 'login.html');
 
 const port = process.env.PORT || 8000;
 const app = express();
-
-
-console.log(__dirname);
 
 
 // ---------------MIDDLEWARE------------------
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(session({
     secret: 'very_secret_key',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false },
+    cookie: { secure: false, maxAge: 1000 * 60 * 60 * 12 }, // 12 hours
 }
 ));
-
-
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'static', 'login.html'));
-});
-
 app.use('/auth', authRouter);
-app.use(isLoggedIn); // all routes beyond this point need an open session
-
+app.use(isLoggedIn);
 app.use(express.static(path.join(__dirname, 'static'))); // setup folder that serves static files
 
-// protected routes
+app.get('/', (req, res) => {
+
+    switch (req.session.type) {
+        case 'user':
+            res.redirect('/citizen');
+            break;
+        case 'rescuer':
+            res.redirect('/rescuer');
+            break;
+        case 'admin':
+            res.redirect('/admin');
+            break;
+    }
+    //res.sendFile(path.join(__dirname, 'static', 'index.html'));
+});
 
 
 // 404 middleware
@@ -69,25 +73,11 @@ export const client = new MongoClient(mongo_uri, {
     }
 });
 
-async function run() {
-    try {
-        // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
-        // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
-    } finally {
-        // Ensures that the client will close when you finish/error
-        await client.close();
-    }
-}
-run().catch(console.dir);
-
-
-
 app.listen(port, () =>
     console.log(`Server is running on port ${port}`)
 );
 
-
+//const json = await items.fetchFromCeid();
+// await items.insertItems(json.items);
+// await items.insertCategories(json.categories);
 

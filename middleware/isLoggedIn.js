@@ -1,8 +1,15 @@
+import { loginPagePath } from "../server.js";
+
+
+
 const isLoggedIn = (req, res, next) => {
-    if (req.session.loggedin) {
+    console.log(`Request for: ${req.path}`);
+    if (req.session.user) {
         next();
+        console.log('authenticated');
     } else {
-        res.status(401).send('Please log in to view this page.');
+        console.log(`Redirecting ${loginPagePath}`);
+        res.sendFile(loginPagePath);
     }
 }
 
