@@ -2,7 +2,7 @@ import { loginPagePath } from "../server.js";
 
 
 
-const isLoggedIn = (req, res, next) => {
+export const isLoggedIn = (req, res, next) => {
     console.log(`Request for: ${req.path}`);
     if (req.session.user) {
         next();
@@ -11,6 +11,14 @@ const isLoggedIn = (req, res, next) => {
         console.log(`Redirecting ${loginPagePath}`);
         res.sendFile(loginPagePath);
     }
-}
+};
 
-export default isLoggedIn;
+export const isAdmin = (req, res, next) => {
+    if (req.session.user && req.session.isAdmin) {
+        next();
+    } else {
+        res.status(403).send('Forbidden: Admins only.');
+    }
+};
+
+

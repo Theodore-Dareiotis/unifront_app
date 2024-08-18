@@ -1,4 +1,4 @@
-import { client } from '../server.js';
+import { pool } from '../server.js';
 
 const url = 'http://usidas.ceid.upatras.gr/web/2023/export.php'
 
@@ -15,64 +15,83 @@ export const fetchFromCeid = async () =>
         });
 
 
-export async function insertItems(items) {
+
+
+export function initItems(items) {
     try {
-        const database = client.db('unifrontDB');
-        const collection = database.collection("items");
 
+        const sql = 'INSERT INTO unifront.item (id, name,category_id, details) VALUES ?';
 
-        // This is to remove the id field and only have the default mongoDB _id
-        const modifiedDocuments = []
+        // from docs: Nested arrays are turned into grouped lists (for bulk inserts), e.g. [['a', 'b'], ['c', 'd']] turns into ('a', 'b'), ('c', 'd')
+        const array = items.map(item => [
+            item.id,
+            item.name,
+            item.category,
+            JSON.stringify(item.details)
+        ]);
 
-        items.forEach(item => {
-            let obj = {};
-            Object.keys(item).forEach(key => {
-                if (key !== 'id') {
-                    obj[key] = item[key];
-                }
-            });
-            modifiedDocuments.push(obj);
+        pool.query(sql, [array], (error, results, fields) => {
+            if (error) throw error;
+            console.log(`Affected rows: ${results.affectedRows}`);
         });
 
-
-
-        const result = await collection.insertMany(modifiedDocuments);
-        console.log(`${result.insertedCount} documents were inserted`);
     } catch {
         console.dir();
     }
 }
 
-export async function insertItem(item) {
+export async function getCatalogue() {
     try {
-        const database = client.db('unifrontDB');
-        const collection = database.collection("items");
+        const sql = 'SELECT item.id AS id, item.name AS name, details, category.name AS category_name, category_id FROM item JOIN category ON item.category_id = category.id;'
 
-        const result = await collection.insertOne(item);
-    } catch {
-        console.dir();
+        const [rows, fields] = await pool.execute(sql);
+
+        return rows;
+    } catch (error) {
+        console.log(`Error: ${error}`);
     }
 }
 
-export async function insertCategories(categories) {
-    try {
-        const database = client.db('unifrontDB');
-        const collection = database.collection("categories");
 
-        const modifiedDocuments = categories.map(category => {
-            let obj = {};
-            Object.keys(category).forEach(key => {
-                if (key !== 'id') {
-                    obj[key] = category[key];
-                }
-            });
-            return obj;
+export function insertItem(item) {
+    try {
+        const sql = 'INSERT INTO unifront.item (id, name, category_id, details) VALUES ?';
+
+        pool.query(sql, item, (error, results, fields) => {
+            if (error) throw error;
+            console.log(results);
         });
 
+    } catch (error) {
+        console.log(`Error: ${error}`);
+    }
+}
 
-        const result = await collection.insertMany(modifiedDocuments);
-        console.log(`${result.insertedCount} documents were inserted`);
-    } catch {
-        console.dir();
+export async function getCategories() {
+    try {
+        const sql = 'SELECT * FROM category';
+
+        const [rows, fields] = await pool.execute(sql);
+
+        return rows;
+    } catch (error) {
+        console.log(`Error: ${error}`);
+    }
+}
+
+export async function initCategories(categories) {
+    try {
+        const sql = 'INSERT INTO unifront.category (id, name) VALUES ?';
+
+        const array = categories.map(category => [
+            category.id,
+            category.category_name
+        ]);
+
+        const [result, fields] = await pool.execute(sql, [array]);
+
+
+    } catch (error) {
+        console.log(`Error: ${error}`);
     }
 }
