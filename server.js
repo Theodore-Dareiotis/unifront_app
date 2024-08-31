@@ -34,7 +34,10 @@ app.use(session({
     cookie: { secure: false, maxAge: 1000 * 60 * 60 * 12 }, // 12 hours
 }
 ));
-app.use('/auth', authRouter);
+app.get('/login-page', async (req, res) => {
+    res.sendFile(loginPagePath);
+});
+app.use('/authentication', authRouter);
 app.use(isLoggedIn);
 app.use('/admin', adminRouter);
 app.use(express.static(path.join(__dirname, 'static'))); // setup folder that serves static files

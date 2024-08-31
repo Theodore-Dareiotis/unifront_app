@@ -1,8 +1,10 @@
 import express from 'express';
 import { isLoggedIn } from '../middleware/authenticationMiddleware.js';
 import { getUser } from '../controllers/users.js';
+import { loginPagePath } from "../server.js";
 
 const authRouter = express.Router();
+
 
 // login
 authRouter.post('/login', async (req, res) => {
@@ -17,6 +19,7 @@ authRouter.post('/login', async (req, res) => {
 
 
         // querying database
+        console.log('Getting user from db');
         const user = await getUser(username, password);
         console.log(user);
 
@@ -47,9 +50,7 @@ authRouter.post('/login', async (req, res) => {
             res.status(401).send('Wrong username and/or password.');
         }
 
-
     });
-
 });
 
 authRouter.use(isLoggedIn);

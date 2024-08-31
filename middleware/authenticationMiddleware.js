@@ -1,15 +1,12 @@
-import { loginPagePath } from "../server.js";
-
 
 
 export const isLoggedIn = (req, res, next) => {
-    console.log(`Request for: ${req.path}`);
+    console.log(`Authenticating: ${req.path}`);
     if (req.session.user) {
         next();
-        console.log('authenticated');
+        console.log('Authenticated.');
     } else {
-        console.log(`Redirecting ${loginPagePath}`);
-        res.sendFile(loginPagePath);
+        res.status(400).redirect('/login-page');
     }
 };
 

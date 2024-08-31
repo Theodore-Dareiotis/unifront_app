@@ -15,8 +15,6 @@ export const fetchFromCeid = async () =>
         });
 
 
-
-
 export function initItems(items) {
     try {
 
@@ -52,32 +50,79 @@ export async function getCatalogue() {
     }
 }
 
-
-export function insertItem(item) {
+export async function getItemById(itemId) {
     try {
-        const sql = 'INSERT INTO unifront.item (id, name, category_id, details) VALUES ?';
+        const sql = 'SELECT * FROM unifront.item WHERE id = ?';
 
-        pool.query(sql, item, (error, results, fields) => {
-            if (error) throw error;
-            console.log(results);
-        });
+        const [rows] = await pool.execute(sql, [itemId]);
 
+        return rows[0];
     } catch (error) {
         console.log(`Error: ${error}`);
+        throw error;
+    }
+}
+
+export async function updateItem(itemId, item) {
+    try {
+        const sql = 'UPDATE unifront.item SET name = ?, category_id = ?, details = ? WHERE id = ?';
+        console.log(item);
+        const [results] = await pool.execute(sql, [item.name, item.categoryId, JSON.stringify(item.details), itemId]);
+
+        return results;
+    } catch (error) {
+        console.log(`Error: ${error}`);
+        throw error;
+    }
+}
+
+export async function insertItem(item) {
+    try {
+        const sql = 'INSERT INTO unifront.item (name, category_id, details) VALUES (?, ?, ?)';
+
+        const [results, fields] = await pool.execute(sql, [item.name, item.categoryId, JSON.stringify(item.details)]);
+
+        return results;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export async function deleteItem(itemId) {
+    try {
+        const sql = 'DELETE FROM unifront.item WHERE id = ?';
+        const [results] = await pool.execute(sql, [itemId]);
+        return results;
+    } catch (error) {
+        console.log(`Error: ${error}`);
+        throw error;
     }
 }
 
 export async function getCategories() {
     try {
-        const sql = 'SELECT * FROM category';
+        const sql = 'SELECT * FROM unifront.category';
 
         const [rows, fields] = await pool.execute(sql);
 
         return rows;
     } catch (error) {
-        console.log(`Error: ${error}`);
+        console.log(error);
     }
 }
+
+export async function insertCategory(categoryName) {
+    try {
+        const sql = 'INSERT INTO unifront.category (name) VALUES (?)';
+
+        const [results] = await pool.execute(sql, categoryName);
+
+        return rows;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 
 export async function initCategories(categories) {
     try {
@@ -92,6 +137,6 @@ export async function initCategories(categories) {
 
 
     } catch (error) {
-        console.log(`Error: ${error}`);
+        console.log(error);
     }
 }
