@@ -2,6 +2,7 @@ import express from 'express';
 import { isLoggedIn } from '../middleware/authenticationMiddleware.js';
 import { getUser } from '../controllers/users.js';
 import { loginPagePath } from "../server.js";
+import { registerUser } from '../controllers/users.js';
 
 const authRouter = express.Router();
 
@@ -27,6 +28,7 @@ authRouter.post('/login', async (req, res) => {
         if (user) {
             req.session.user = user.username;
             req.session.type = user.user_type;
+            req.session.userId = user.id;
             //console.log(req.session.user);
             //console.log(req.session.type);
             console.log(`${username} logged in.`);
@@ -35,7 +37,7 @@ authRouter.post('/login', async (req, res) => {
                 if (err) return next(err);
 
                 switch (req.session.type) {
-                    case 'user':
+                    case 'citizen':
                         res.redirect('/citizen');
                         break;
                     case 'rescuer':
@@ -52,6 +54,19 @@ authRouter.post('/login', async (req, res) => {
 
     });
 });
+
+// register
+authRouter.post('/register', async (req, res) => {
+    try {
+        const citizen = req.body;
+        await registerUser(citizen);
+        res.status(200).json({ message: 'Account registered successfully' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Error creating account' });
+    }
+});
+
 
 authRouter.use(isLoggedIn);
 

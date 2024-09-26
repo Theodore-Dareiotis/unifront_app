@@ -2,8 +2,9 @@ import mysql from 'mysql2/promise';
 import express from 'express';
 import path from 'path';
 import authRouter from './routes/authenticationRoutes.js';
-import adminRouter from './routes/adminRoutes.js'
-import logger from './middleware/loggerMiddleware.js';
+import adminRouter from './routes/adminRoutes.js';
+import citizenRouter from './routes/citizenRoutes.js';
+import rescuerRouter from './routes/rescuerRoutes.js';
 import errorHandler from './middleware/errorMiddleware.js';
 import { isLoggedIn } from './middleware/authenticationMiddleware.js';
 import { fileURLToPath } from 'node:url';
@@ -39,12 +40,14 @@ app.get('/login-page', async (req, res) => {
 });
 app.use('/authentication', authRouter);
 app.use(isLoggedIn);
+app.use('/citizen', citizenRouter);
+app.use('/rescuer', rescuerRouter)
 app.use('/admin', adminRouter);
 app.use(express.static(path.join(__dirname, 'static'))); // setup folder that serves static files
 app.get('/', (req, res) => {
 
     switch (req.session.type) {
-        case 'user':
+        case 'citizen':
             res.redirect('/citizen');
             break;
         case 'rescuer':
@@ -79,7 +82,7 @@ app.listen(port, () =>
     console.log(`Server is running on port ${port}`)
 );
 
-const json = await items.fetchFromCeid();
+//const json = await items.fetchFromCeid();
 //items.initCategories(json.categories);
 //items.initItems(json.items);
 

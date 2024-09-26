@@ -40,7 +40,7 @@ export function initItems(items) {
 
 export async function getCatalogue() {
     try {
-        const sql = 'SELECT item.id AS id, item.name AS name, details, category.name AS category_name, category_id FROM item JOIN category ON item.category_id = category.id;'
+        const sql = 'SELECT item.id AS itemId, item.name AS itemName, details, category.name AS categoryName, category_id AS categoryId FROM item JOIN category ON item.category_id = category.id;'
 
         const [rows, fields] = await pool.execute(sql);
 

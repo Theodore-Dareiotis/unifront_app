@@ -1,0 +1,51 @@
+<div class="modal fade" id="addFromCatalogueModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addFromCatalogueModalLabel">Add Items from Catalogue</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-4 dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            Categories
+                        </button>
+                        <select class="catalogueCategorySelect form-select dropdown-menu" style="height: 300px;"
+                            multiple>
+                            <option class="dropdown-item" value="">All Categories</option>
+                            <% categories.forEach((category)=> { %>
+                                <option class="dropdown-item" value="<%= category.id %>">
+                                    <%= category.name %>
+                                </option>
+                                <% }); %>
+                        </select>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="catalogueSearch form-control" placeholder="Search items...">
+                    </div>
+                </div>
+                <form id="addFromCatalogueForm">
+                    <div class="table-responsive" style="max-height: 400px;">
+                        <table class="table table-hover">
+                            <thead style="top: 0; position: sticky; z-index: 3; background-color: #ffffff;">
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Item Name</th>
+                                    <th>Category</th>
+                                    <th>Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody class="catalogueTableBody">
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">Add Selected Items</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

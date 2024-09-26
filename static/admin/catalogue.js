@@ -136,6 +136,7 @@ newItemForm.addEventListener('submit', async (e) => {
 tableBody.addEventListener('click', async (e) => {
     if (e.target.closest('.delete-item')) {
         const itemId = e.target.closest('button').dataset.id;
+
         if (confirm('Are you sure you want to delete this item?')) {
             try {
                 const response = await fetch(`http://localhost:3000/admin/deleteItem/${itemId}`, {
@@ -192,11 +193,10 @@ function showEditModal(item) {
     addDetailBtn.addEventListener('click', () => addDetailFields(detailsContainer));
 
     // adding existing details to the form
-    form.querySelector('#itemName').value = item.name;
-    form.querySelector('#itemCategory').value = item.category_id;
+    form.querySelector('#itemName').value = item.itemName;
+    form.querySelector('#itemCategory').value = item.categoryId;
 
     console.log(item.details);
-    //const details = JSON.stringify(item.details);
     //console.log(details);
 
     for (let detail of item.details) {
@@ -223,7 +223,7 @@ function showEditModal(item) {
         }
 
         try {
-            const response = await fetch(`http://localhost:3000/admin/updateItem/${item.id}`, {
+            const response = await fetch(`http://localhost:3000/admin/updateItem/${item.itemId}`, {
                 method: 'PUT',
                 body: JSON.stringify(updatedItem),
                 headers: { "Content-Type": "application/json" },
